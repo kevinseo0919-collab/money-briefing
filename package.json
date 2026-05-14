@@ -10,7 +10,8 @@
     "dup": "node scripts/duplicate-check.js",
     "preview": "node scripts/preview.js",
     "sync": "node scripts/obsidian-sync.js",
-    "daily": "node scripts/daily-run.js"
+    "daily": "node scripts/daily-run.js",
+    "publish": "node scripts/export-publish.js"
   },
   "dependencies": {
     "axios": "^1.7.0",

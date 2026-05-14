@@ -12,7 +12,14 @@ async function run() {
   // Phase 1: KPI 수집 + 키워드 풀 로드
   await collectKPI(process.env.BLOG_ID).catch(e => console.warn('KPI skip:', e.message));
   const banks = fs.readdirSync('keyword-bank').filter(f => f.endsWith('.yml'));
-  const candidates = banks.flatMap(f => yaml.parse(fs.readFileSync(`keyword-bank/${f}`, 'utf8')).keywords || []);
+  const candidates = banks.flatMap(f => {
+    const doc = yaml.parse(fs.readFileSync(`keyword-bank/${f}`, 'utf8')) || {};
+    // 구조 1: { keywords: [...] }  |  구조 2: { 카테고리A: [...], 카테고리B: [...] }
+    if (Array.isArray(doc.keywords)) return doc.keywords;
+    return Object.entries(doc)
+      .filter(([k, v]) => Array.isArray(v) && k !== 'covered')
+      .flatMap(([, v]) => v);
+  });
 
   // Phase 2: Top 5 키워드 분석 (병렬)
   const sample = candidates.sort(() => Math.random() - 0.5).slice(0, 10);

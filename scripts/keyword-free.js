@@ -10,19 +10,25 @@ async function getNaverAutocomplete(keyword) {
 }
 
 async function getDataLabTrend(keyword) {
-  const today = new Date().toISOString().slice(0,10);
-  const start = new Date(Date.now() - 30*24*3600*1000).toISOString().slice(0,10);
-  const { data } = await axios.post(
-    'https://openapi.naver.com/v1/datalab/search',
-    { startDate: start, endDate: today, timeUnit: 'date', keywordGroups: [{ groupName: keyword, keywords: [keyword] }] },
-    { headers: {
-      'X-Naver-Client-Id': process.env.NAVER_CLIENT_ID,
-      'X-Naver-Client-Secret': process.env.NAVER_CLIENT_SECRET,
-      'Content-Type': 'application/json'
-    }}
-  );
-  const ratios = data.results[0].data.map(d => d.ratio);
-  return ratios.reduce((a,b)=>a+b,0) / ratios.length;
+  try {
+    const today = new Date().toISOString().slice(0,10);
+    const start = new Date(Date.now() - 30*24*3600*1000).toISOString().slice(0,10);
+    const { data } = await axios.post(
+      'https://openapi.naver.com/v1/datalab/search',
+      { startDate: start, endDate: today, timeUnit: 'date', keywordGroups: [{ groupName: keyword, keywords: [keyword] }] },
+      { headers: {
+        'X-Naver-Client-Id': process.env.NAVER_CLIENT_ID,
+        'X-Naver-Client-Secret': process.env.NAVER_CLIENT_SECRET,
+        'Content-Type': 'application/json'
+      }}
+    );
+    const ratios = data.results[0].data.map(d => d.ratio);
+    return ratios.reduce((a,b)=>a+b,0) / ratios.length;
+  } catch (e) {
+    // DataLab API 미등록(401) 등은 치명적이지 않음 — trend_score 없이 진행
+    console.warn(`DataLab 건너뜀 (${keyword}): ${e.response?.status || e.message}`);
+    return null;
+  }
 }
 
 async function getCompetition(keyword) {
