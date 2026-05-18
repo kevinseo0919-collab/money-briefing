@@ -21,8 +21,24 @@ async function run() {
       .flatMap(([, v]) => v);
   });
 
+  // feed-pool 에 이미 적재된 키워드 자동 제외
+  // 파일명 형식: "<순번>-<공백을_로_치환한_키워드>.<md|html>"
+  const covered = new Set(
+    fs.existsSync('feed-pool')
+      ? fs.readdirSync('feed-pool')
+          .filter(f => /\.(md|html)$/i.test(f))
+          .map(f => f.replace(/\.(md|html)$/i, '').replace(/^\d+-/, '').replace(/_/g, ' '))
+      : []
+  );
+  const uncovered = candidates.filter(k => !covered.has(k));
+  console.log(`📋 키워드 풀 ${candidates.length}개 / 미작성 ${uncovered.length}개 (covered ${covered.size}개 자동 제외)`);
+  if (uncovered.length === 0) {
+    console.warn('⚠️  모든 키워드가 이미 작성됨. keyword-bank/*.yml 에 새 키워드를 추가하세요.');
+    process.exit(0);
+  }
+
   // Phase 2: Top 5 키워드 분석 (병렬)
-  const sample = candidates.sort(() => Math.random() - 0.5).slice(0, 10);
+  const sample = uncovered.sort(() => Math.random() - 0.5).slice(0, 10);
   const analyzed = await Promise.all(sample.map(k => analyzeKeyword(k).catch(() => null)));
   const top5 = analyzed.filter(Boolean).filter(k => k.competition !== 'HIGH').slice(0, 5);
 
