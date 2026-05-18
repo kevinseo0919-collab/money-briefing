@@ -11,7 +11,7 @@ function check(file) {
   const dup = checkDuplicate(file, 'feed-pool');
 
   const result = {
-    length: { value: len, passed: len >= 1500 && len <= 3000 },
+    length: { value: len, passed: len >= 1500 && len <= 2500 },
     faq_count: { value: faqCount, passed: faqCount >= 6 },
     greeting: { passed: hasGreeting },
     banned_words: { found: hasBanned, passed: hasBanned.length === 0 },
