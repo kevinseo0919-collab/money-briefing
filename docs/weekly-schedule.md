@@ -102,3 +102,11 @@ npm run weekly                # 1단계 자동 진단 실제 실행
 - `.claude/agents/weekly-strategist.md` — 에이전트 지시문
 - `scripts/weekly-run.js` — 오케스트레이터
 - `output/weekly-analysis/<YYYY-MM-DD>/` — 주차별 분석 결과
+
+## ✅ 첫 1단계 실행 검증 완료 (2026-05-18)
+
+- Phase 1 dry-run: 6단계 모두 출력, 파일 생성 0개 ✓
+- Phase 2 `WEEKLY_STAGE_LIMIT=1`: 1단계만 실행 후 2단계 진입 전 정상 종료 ✓
+- 산출물: `output/weekly-analysis/2026-05-18/self-diagnosis.md` (13개 글 진단)
+- 포함 항목: 본문 길이 · 키워드 밀도 · 키워드 등장 · 내부 링크 · 카테고리 배지 · 도입부 패턴 · 인간미 요소 3종 (감정/시공간/구체숫자)
+- 평균값 요약(본문 2146자, 키워드 밀도 1.12%, 내부 링크 0.0개, 인간미 1.92/3)도 함께 산출됨
