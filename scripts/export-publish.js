@@ -35,7 +35,6 @@ function convert(md, s) {
   h = h.replace(/^### (.+)$/gm, (_, t) => (s.h4++, `<h4>${t}</h4>`));
   h = h.replace(/^## (.+)$/gm, (_, t) => (s.h3++, `<h3>${t}</h3>`));
   h = h.replace(/^(>[ \t]*)?- (.+)$/gm, (_, q, t) => (s.li++, `${q || ''}• ${t}`));
-  h = h.replace(/^---+\s*$/gm, () => (s.hr++, '<hr>'));
   h = h.replace(/^>[^\n]*(?:\r?\n>[^\n]*)*/gm, (blk) => {
     s.bq++;
     const inner = blk.split(/\r?\n/).map(l => l.replace(/^>[ \t]?/, '')).join('\n');
