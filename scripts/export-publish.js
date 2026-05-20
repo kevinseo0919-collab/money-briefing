@@ -1,5 +1,6 @@
-// feed-pool 초안을 네이버 PC HTML 모드 붙여넣기용 .txt 로 내보낸다.
-// 원본 마크다운(**굵게** 등)은 보존하고, 발행 시점에만 HTML 로 변환한다.
+// feed-pool 초안을 네이버 PC 에디터에 그대로 붙여넣을 수 있는 일반 텍스트(.txt)로 내보낸다.
+// 마크다운 마커(**, ##, >, - 등)를 모두 제거한다. 굵게/소제목/인용구는 붙여넣은 뒤 네이버 서식 도구로 직접 적용.
+// 원본 마크다운은 보존(이 스크립트는 feed-pool 을 수정하지 않음).
 const fs = require('fs');
 const path = require('path');
 
@@ -27,18 +28,17 @@ function section(body, name) {
   return m ? m[1].trim() : '';
 }
 
-// 마크다운 → 네이버 HTML 모드 호환 HTML (정규식 기반)
+// 마크다운 마커 제거 → 네이버 에디터 붙여넣기용 일반 텍스트 (정규식 기반)
 function convert(md, s) {
   let h = md;
-  h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, t, u) => (s.a++, `<a href="${u}">${t}</a>`));
-  h = h.replace(/\*\*([^*]+?)\*\*/g, (_, t) => (s.b++, `<b>${t}</b>`));
-  h = h.replace(/^### (.+)$/gm, (_, t) => (s.h4++, `<h4>${t}</h4>`));
-  h = h.replace(/^## (.+)$/gm, (_, t) => (s.h3++, `<h3>${t}</h3>`));
+  h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, t, u) => `${t} (${u})`);
+  h = h.replace(/\*\*([^*]+?)\*\*/g, (_, t) => (s.b++, t));
+  h = h.replace(/^#{2,3} (.+)$/gm, (_, t) => (s.h++, t));
   h = h.replace(/^(>[ \t]*)?- (.+)$/gm, (_, q, t) => (s.li++, `${q || ''}• ${t}`));
+  h = h.replace(/^---+\s*$/gm, '');
   h = h.replace(/^>[^\n]*(?:\r?\n>[^\n]*)*/gm, (blk) => {
     s.bq++;
-    const inner = blk.split(/\r?\n/).map(l => l.replace(/^>[ \t]?/, '')).join('\n');
-    return `<blockquote>${inner}</blockquote>`;
+    return blk.split(/\r?\n/).map(l => l.replace(/^>[ \t]?/, '')).join('\n');
   });
   return h.trim();
 }
@@ -54,19 +54,19 @@ function main() {
   const thumb = section(body, '썸네일 후킹 멘트');
   const mainBody = body.split(/^## 해시태그/m)[0].trim();
 
-  const s = { b: 0, h3: 0, h4: 0, bq: 0, li: 0, a: 0, hr: 0 };
-  const htmlBody = convert(mainBody, s);
+  const s = { b: 0, h: 0, bq: 0, li: 0 };
+  const textBody = convert(mainBody, s);
   const bar = '═'.repeat(43);
 
   const out = [
-    '[블로그 발행용 - PC HTML 모드]',
+    '[블로그 발행용 - PC 네이버 에디터]',
     `제목: ${title}`,
     `카테고리: ${data.category || '(없음)'}`,
     `태그: ${tagsLine}`,
     bar,
-    '[본문 - HTML 모드에 붙여넣기]',
+    '[본문 - 네이버 에디터에 그대로 붙여넣기]',
     '',
-    htmlBody,
+    textBody,
     '',
     bar,
     '[해시태그 - 본문 끝에 추가]',
@@ -76,14 +76,18 @@ function main() {
     `이미지 프롬프트: ${imgPrompt}`,
     `썸네일 후킹 멘트: ${thumb}`,
     bar,
+    '[수동 서식 적용 가이드]',
+    `원본 파일(${input})에서 굵게/소제목/인용박스 위치를 참고하여`,
+    '네이버 에디터에서 해당 부분을 드래그한 후 서식 버튼으로 적용:',
+    '- **굵게** 표시된 부분 → B 버튼',
+    '- ## 으로 시작한 줄 → 소제목(H3) 버튼',
+    '- > 로 시작한 줄 → 인용구(") 버튼',
+    bar,
     '[변환 통계]',
-    `** → <b> 변환: ${s.b}건`,
-    `## → <h3> 변환: ${s.h3}건`,
-    `### → <h4> 변환: ${s.h4}건`,
-    `> → <blockquote> 변환: ${s.bq}건`,
-    `- → • 변환: ${s.li}건`,
-    `[링크](url) → <a> 변환: ${s.a}건`,
-    `--- → <hr> 변환: ${s.hr}건`,
+    `굵게 마커 제거: ${s.b}건`,
+    `소제목 마커 제거: ${s.h}건`,
+    `인용박스 마커 제거: ${s.bq}건`,
+    `리스트 마커 변환: ${s.li}건`,
   ].join('\n') + '\n';
 
   const outDir = path.join('output', 'publish');
@@ -91,7 +95,7 @@ function main() {
   const outPath = path.join(outDir, path.basename(input, '.md') + '.txt');
   fs.writeFileSync(outPath, out, 'utf8');
   console.log(`✅ 저장: ${outPath}`);
-  console.log(`** → <b> 변환: ${s.b}건, ## → <h3> 변환: ${s.h3}건, > → <blockquote> 변환: ${s.bq}건, - → • 변환: ${s.li}건`);
+  console.log(`굵게 ${s.b} / 소제목 ${s.h} / 인용박스 ${s.bq} / 리스트 ${s.li} 마커 처리`);
 }
 
 main();
