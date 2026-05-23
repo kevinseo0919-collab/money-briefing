@@ -22,8 +22,15 @@ async function getDataLabTrend(keyword) {
         'Content-Type': 'application/json'
       }}
     );
-    const ratios = data.results[0].data.map(d => d.ratio);
-    return ratios.reduce((a,b)=>a+b,0) / ratios.length;
+    const ratios = (data.results?.[0]?.data || []).map(d => d.ratio);
+    if (ratios.length === 0) return null; // 검색량이 적은 롱테일 키워드는 데이터 없음
+    const r1 = n => Math.round(n * 10) / 10;
+    const score = ratios.reduce((a, b) => a + b, 0) / ratios.length; // 평균 검색 관심도
+    // 급상승 지표: 최근 절반 평균 - 이전 절반 평균 (양수·클수록 최근 검색이 가파르게 상승)
+    const half = Math.floor(ratios.length / 2);
+    const firstAvg = ratios.slice(0, half).reduce((a, b) => a + b, 0) / (half || 1);
+    const lastAvg = ratios.slice(half).reduce((a, b) => a + b, 0) / ((ratios.length - half) || 1);
+    return { score: r1(score), rising: r1(lastAvg - firstAvg) };
   } catch (e) {
     // DataLab API 미등록(401) 등은 치명적이지 않음 — trend_score 없이 진행
     console.warn(`DataLab 건너뜀 (${keyword}): ${e.response?.status || e.message}`);
@@ -49,7 +56,14 @@ async function analyzeKeyword(keyword) {
     getCompetition(keyword)
   ]);
   const competition = comp < 10000 ? 'LOW' : comp < 50000 ? 'MEDIUM' : 'HIGH';
-  return { keyword, trend_score: trend, competition, total_posts: comp, related_keywords: related.slice(0,10) };
+  return {
+    keyword,
+    trend_score: trend ? trend.score : null,
+    rising_score: trend ? trend.rising : null, // 급상승 정렬용 (높을수록 최근 상승)
+    competition,
+    total_posts: comp,
+    related_keywords: related.slice(0, 10)
+  };
 }
 
 if (require.main === module) {

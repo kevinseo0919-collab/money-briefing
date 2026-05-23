@@ -9,12 +9,13 @@ allowed-tools: Bash(node:*), Read, Write, Edit, Task, Glob
 cron(06:00) 은 `node scripts/daily-run.js` 를 headless 로 돌리지만,
 이 명령은 Claude Code 세션 안에서 같은 파이프라인을 **에이전트로** 실행한다.
 
-인자: `$ARGUMENTS` (없으면 상위 5개 키워드 기본).
+인자: `$ARGUMENTS` (없으면 하루 10개 = 급상승 4 + 시드 6 기본).
 
 ## 진행 순서
 
-1. **키워드 추출** — `node scripts/keyword-free.js` 실행 후
-   `data/daily_keywords/<오늘>.json` 을 읽어 상위 N개를 고른다.
+1. **키워드 추출** — `node scripts/daily-run.js` 실행(또는 cron이 만든
+   `output/<오늘>_daily/keywords.json` 사용). 하루 10개 = DataLab 트렌드 상승폭 상위 4개(급상승)
+   + 시드 풀 6개. 각 항목의 `source`("급상승"/"시드")로 구분된다.
    (`--keywords` 가 주어지면 그 목록을 그대로 사용)
 2. **리서치** — 각 키워드에 `node scripts/research.js "<키워드>"` 를 실행해
    `output/<오늘>/research/` 에 브리프를 만든다.

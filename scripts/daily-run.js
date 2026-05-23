@@ -5,6 +5,15 @@ const fs = require('fs');
 const yaml = require('yaml');
 const dayjs = require('dayjs');
 
+// 동시 요청 수를 제한해 네이버 API rate-limit/버스트 실패를 줄인다
+async function mapLimit(items, limit, fn) {
+  const out = [];
+  for (let i = 0; i < items.length; i += limit) {
+    out.push(...await Promise.all(items.slice(i, i + limit).map(fn)));
+  }
+  return out;
+}
+
 async function run() {
   console.log('🚀 Daily run started:', new Date().toISOString());
   const today = dayjs().format('YYYY-MM-DD');
@@ -37,16 +46,36 @@ async function run() {
     process.exit(0);
   }
 
-  // Phase 2: Top 5 키워드 분석 (병렬)
-  const sample = uncovered.sort(() => Math.random() - 0.5).slice(0, 10);
-  const analyzed = await Promise.all(sample.map(k => analyzeKeyword(k).catch(() => null)));
-  const top5 = analyzed.filter(Boolean).filter(k => k.competition !== 'HIGH').slice(0, 5);
+  // Phase 2: 키워드 분석 (병렬) — 하루 10개 = 급상승 4 + 시드 6
+  const TOTAL = 10, N_RISING = 4;
+  // 급상승 판별을 위해 후보를 넉넉히(최대 30개) 분석한다
+  const sample = uncovered.sort(() => Math.random() - 0.5).slice(0, 30);
+  const analyzed = (await mapLimit(sample, 5, k => analyzeKeyword(k).catch(() => null))).filter(Boolean);
+  const eligible = analyzed.filter(k => k.competition !== 'HIGH'); // 고경쟁(블로그 글 5만+) 제외
+
+  // 급상승: DataLab 트렌드 상승폭(rising_score)이 양수인 것 중 상위 N_RISING개
+  const rising = eligible
+    .filter(k => k.rising_score != null && k.rising_score > 0)
+    .sort((a, b) => b.rising_score - a.rising_score)
+    .slice(0, N_RISING)
+    .map(k => ({ ...k, source: '급상승' }));
+  const picked = new Set(rising.map(k => k.keyword));
+
+  // 시드: 나머지 후보로 채워 총 TOTAL개를 맞춘다 (급상승이 4개 미만이면 시드가 더 채워짐)
+  const selected = [...rising];
+  for (const k of eligible) {
+    if (selected.length >= TOTAL) break;
+    if (picked.has(k.keyword)) continue;
+    selected.push({ ...k, source: '시드' });
+    picked.add(k.keyword);
+  }
 
   // Phase 3: 결과 저장 (Claude Code가 이후 /blog-new 실행)
   const outDir = `output/${today}_daily`;
   fs.mkdirSync(outDir, { recursive: true });
-  fs.writeFileSync(`${outDir}/keywords.json`, JSON.stringify(top5, null, 2));
-  console.log('✅ Top 5 키워드 저장:', `${outDir}/keywords.json`);
+  fs.writeFileSync(`${outDir}/keywords.json`, JSON.stringify(selected, null, 2));
+  const risingCount = selected.filter(k => k.source === '급상승').length;
+  console.log(`✅ ${selected.length}개 키워드 저장 (급상승 ${risingCount} + 시드 ${selected.length - risingCount}):`, `${outDir}/keywords.json`);
   console.log('다음: Claude Code에서 /blog-new "<키워드>" 실행');
 }
 
