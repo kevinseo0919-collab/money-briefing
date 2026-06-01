@@ -93,6 +93,11 @@ const stats = feedFiles.map(f => {
 const introDist = stats.reduce((acc, s) => { acc[s.intro] = (acc[s.intro] || 0) + 1; return acc; }, {});
 const introDistLines = Object.entries(introDist).sort((a,b)=>b[1]-a[1]).map(([k,v]) => `- ${k}: ${v}건`).join('\n');
 
+// 방문자/수익 스프린트 추적 데이터 (data/blog_metrics/sprint-log.json) 주입
+let sprintMd;
+try { sprintMd = require('./kpi-log').buildSprintReportMd(); }
+catch (e) { sprintMd = '## 방문자 추세 vs 목표\n\n_(스프린트 추적 모듈 로드 실패: ' + e.message + ')_'; }
+
 const diag = `# 자체 블로그 진단 — ${today}
 
 ## 지난 7일 발행 글 (mtime 기준)
@@ -113,9 +118,11 @@ ${stats.map(s => `- ${s.file}: 감정 ${s.hasEmo?'O':'X'} / 시공간 ${s.hasPla
 - 키워드 밀도 평균: ${(stats.reduce((a,s)=>a+parseFloat(s.density),0) / (stats.length||1)).toFixed(2)}%
 - 내부 링크 평균: ${(stats.reduce((a,s)=>a+s.linkCount,0) / (stats.length||1)).toFixed(1)}개
 - 인간미 요소 평균: ${(stats.reduce((a,s)=>a+s.humanCount,0) / (stats.length||1)).toFixed(2)}/3
+
+${sprintMd}
 `;
 fs.writeFileSync(path.join(outDir, 'self-diagnosis.md'), diag);
-console.log(`  ✓ self-diagnosis.md 저장 (${feedFiles.length}개 글 분석)\n`);
+console.log(`  ✓ self-diagnosis.md 저장 (${feedFiles.length}개 글 분석, 방문자 추세 포함)\n`);
 
 if (stageLimit < 2) { console.log(`⛔ WEEKLY_STAGE_LIMIT=${stageLimit} 도달. 2단계 진입 전 종료.\n`); process.exit(0); }
 
@@ -148,7 +155,7 @@ if (stageLimit < 6) { console.log(`⛔ WEEKLY_STAGE_LIMIT=${stageLimit} 도달.\
 
 console.log(`▶ ${steps[5]}`);
 fs.writeFileSync(path.join(outDir, 'REPORT.md'),
-`# 📊 주간 리포트 — ${today}\n\n## 한 페이지 요약\n_(에이전트가 종합 작성)_\n\n## 지난 주 성과\n- 발행 수: ${feedFiles.length}건 (지난 7일)\n- 방문자 변화: (KPI 수집 후 기입)\n\n## 이번 주 핵심 발견 3가지\n1. \n2. \n3. \n\n## 자동 적용된 변경사항\n- changelog.md 참조\n\n## 사용자 수동 To-Do\n- [ ] \n- [ ] \n- [ ] \n- [ ] \n- [ ] \n\n## 다음 주 핵심 KPI\n- \n`);
+`# 📊 주간 리포트 — ${today}\n\n## 한 페이지 요약\n_(에이전트가 종합 작성)_\n\n## 지난 주 성과\n- 발행 수: ${feedFiles.length}건 (지난 7일)\n\n${sprintMd}\n\n## 이번 주 핵심 발견 3가지\n1. \n2. \n3. \n\n## 자동 적용된 변경사항\n- changelog.md 참조\n\n## 사용자 수동 To-Do\n- [ ] \n- [ ] \n- [ ] \n- [ ] \n- [ ] \n\n## 다음 주 핵심 KPI\n- \n`);
 console.log(`  ✓ REPORT.md 스켈레톤 생성\n`);
 
 console.log(`✅ 1단계 자동 진단 완료. 분석 폴더: ${outDir}/`);

@@ -21,7 +21,7 @@
   </array>
 
   <key>WorkingDirectory</key>
-  <string>/Users/maegmini/naver-blog-orchestrator</string>
+  <string>/Users/maegmini/머니브리핑-money-briefing</string>
 
   <key>StartCalendarInterval</key>
   <dict>
@@ -37,10 +37,10 @@
   <false/>
 
   <key>StandardOutPath</key>
-  <string>/Users/maegmini/naver-blog-orchestrator/output/weekly.out.log</string>
+  <string>/Users/maegmini/머니브리핑-money-briefing/output/weekly.out.log</string>
 
   <key>StandardErrorPath</key>
-  <string>/Users/maegmini/naver-blog-orchestrator/output/weekly.err.log</string>
+  <string>/Users/maegmini/머니브리핑-money-briefing/output/weekly.err.log</string>
 
   <key>EnvironmentVariables</key>
   <dict>

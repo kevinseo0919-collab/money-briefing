@@ -1,5 +1,5 @@
 ---
-title: "{{제목 — 키워드 포함, 30자 내외}}"
+title: "{{제목 — 키워드로 시작(front-load) + 요일별 유형(월수금 질문형/화목 숫자형/토일 후기형) + 구체 숫자·연도, 30자 내외 · naver-optimization §8}}"
 keyword: "{{대상 키워드}}"
 date: "{{YYYY-MM-DD}}"
 status: 초안

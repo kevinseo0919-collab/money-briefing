@@ -4,3 +4,6 @@ data/
 .env
 knowledge/brand-facts.md
 *.log
+
+# macOS
+.DS_Store

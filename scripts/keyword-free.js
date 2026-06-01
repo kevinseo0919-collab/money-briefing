@@ -38,6 +38,21 @@ async function getDataLabTrend(keyword) {
   }
 }
 
+async function getGoogleTrend(keyword) {
+  // 최선 노력(best-effort) 수요 신호 — DataLab 이 401 등으로 비면 대체로 쓴다.
+  // google-trends 가 캡차/HTML 을 뱉으면 조용히 null 반환(파이프라인 비차단).
+  try {
+    const req = googleTrends.interestOverTime({
+      keyword, geo: 'KR', startTime: new Date(Date.now() - 90 * 24 * 3600 * 1000),
+    });
+    const timeout = new Promise((_, rej) => setTimeout(() => rej(new Error('gtrend timeout')), 4000));
+    const raw = await Promise.race([req, timeout]);
+    const vals = (JSON.parse(raw).default?.timelineData || []).map(d => Number(d.value?.[0] || 0));
+    if (!vals.length) return null;
+    return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+  } catch { return null; }
+}
+
 async function getCompetition(keyword) {
   const { data } = await axios.get(
     `https://openapi.naver.com/v1/search/blog.json?query=${encodeURIComponent(keyword)}&display=10`,
@@ -50,16 +65,18 @@ async function getCompetition(keyword) {
 }
 
 async function analyzeKeyword(keyword) {
-  const [related, trend, comp] = await Promise.all([
+  const [related, trend, comp, gtrend] = await Promise.all([
     getNaverAutocomplete(keyword),
     getDataLabTrend(keyword),
-    getCompetition(keyword)
+    getCompetition(keyword),
+    getGoogleTrend(keyword)
   ]);
   const competition = comp < 10000 ? 'LOW' : comp < 50000 ? 'MEDIUM' : 'HIGH';
   return {
     keyword,
     trend_score: trend ? trend.score : null,
     rising_score: trend ? trend.rising : null, // 급상승 정렬용 (높을수록 최근 상승)
+    trend_google: gtrend,                       // DataLab 대체용 수요 신호 (0~100, 없으면 null)
     competition,
     total_posts: comp,
     related_keywords: related.slice(0, 10)
@@ -72,4 +89,4 @@ if (require.main === module) {
   analyzeKeyword(kw).then(r => console.log(JSON.stringify(r, null, 2)));
 }
 
-module.exports = { analyzeKeyword, getNaverAutocomplete, getDataLabTrend, getCompetition };
+module.exports = { analyzeKeyword, getNaverAutocomplete, getDataLabTrend, getGoogleTrend, getCompetition };

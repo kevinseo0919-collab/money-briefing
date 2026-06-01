@@ -9,18 +9,22 @@ model: sonnet
 무료 신호(자동완성·Google Trends·DataLab)만으로 "쓸 만한" 키워드를 골라낸다.
 
 ## 입력
-- `data/daily_keywords/<날짜>.json` — keyword-free.js 추출 결과 (`top` 배열)
-- `keyword-bank/*.yaml` — 카테고리별 시드와 이미 다룬 키워드
+- `output/<날짜>_daily/keywords.json` — daily-run.js 가 뽑은 오늘의 후보(급상승/풀/시드, golden_score 포함)
+- `data/keyword-pool.json` — 자가증식 키워드 풀(채점됨). 더 필요하면 `node scripts/keyword-expand.js --top 30` 으로 상위 후보를 본다.
+- `keyword-bank/*.yml` — 카테고리별 시드
 - `feed-pool/`, `output/` — 최근 다룬 주제 (중복 회피용)
-- `data/blog_metrics/<날짜>.json` — 있으면 발행 추세 참고
+- `data/blog_metrics/sprint-log.json` — 방문자 추세(경쟁도 상한 판단에 반영됨)
 
-## 선별 기준
-1. **점수(score)** — 자동완성·트렌드 양쪽에서 잡힌 키워드 우선 (출처 다양성).
-2. **트렌드(trendAvg)** — DataLab 비율이 있으면 너무 낮은 건 제외.
-3. **경쟁도** — 필요하면 `node scripts/research.js "<키워드>"` 를 돌려
-   `competitionHint` 를 확인. "경쟁 낮음~보통" 을 선호.
-4. **중복 회피** — feed-pool·output 에 이미 있는 주제와 겹치면 제외.
-5. **브랜드 적합성** — `knowledge/brand-facts.md` 의 분야와 맞는지.
+## 선별 기준 (우선순위 순)
+1. **Golden Score** — `keyword-expand` 가 매긴 점수(수요40·경쟁적합35·롱테일10·블로그맞춤15)가 높은 후보 우선. keywords.json 의 `golden_score`/`source` 를 본다.
+2. **노출 유리도(경쟁 적합)** — blog 문서수가 내 블로그 상태 상한 이하인지. 신생/저방문이면 LOW(<1만)~중경쟁만, 성장하면 상한 상향. HIGH(>5만)는 제외.
+3. **고단가(애드포스트 North Star)** — 대출·세금·환급·보험·카드·연금·청약·지원금·장려금 등 머니 키워드 가산.
+4. **카테고리 균형** — 최근 발행이 적은 카테고리(예: 돈일기) 우대.
+5. **롱테일·검색의도** — 어절 3개↑·의도 명확한 롱테일 선호(저경쟁·전환율↑).
+6. **중복 회피** — feed-pool·output 과 겹치면 제외.
+7. **브랜드 적합성** — `knowledge/brand-facts.md` 분야와 맞는지.
+
+후보가 부족하면 `node scripts/keyword-expand.js`(마이닝+채점)를 먼저 돌려 풀을 불린 뒤 다시 고른다.
 
 ## 출력
 오늘 쓸 키워드 N개(기본 5개)를 다음 형식으로 보고한다:

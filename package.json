@@ -5,7 +5,10 @@
   "scripts": {
     "research": "node scripts/research.js",
     "keyword": "node scripts/keyword-free.js",
+    "expand": "node scripts/keyword-expand.js",
+    "news-mine": "node scripts/news-miner.js",
     "kpi": "node scripts/kpi-collector.js",
+    "kpi-log": "node scripts/kpi-log.js",
     "quality": "node scripts/quality-check.js",
     "dup": "node scripts/duplicate-check.js",
     "preview": "node scripts/preview.js",

@@ -11,13 +11,17 @@ if (!fs.existsSync(mappingFile)) {
 }
 const mapping = JSON.parse(fs.readFileSync(mappingFile, 'utf8'));
 
-const files = fs.readdirSync(dir).filter(f => f.endsWith('.md'));
+// feed-pool 하위 폴더(주차별 보관 등)까지 재귀적으로 .md 수집
+const listMd = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => {
+  const p = path.join(d, e.name);
+  return e.isDirectory() ? listMd(p) : (e.name.endsWith('.md') ? [p] : []);
+});
+const files = listMd(dir);
 let totalReplaced = 0;
 const unmapped = new Set();
 const perFile = [];
 
-files.forEach(f => {
-  const fp = path.join(dir, f);
+files.forEach(fp => {
   let c = fs.readFileSync(fp, 'utf8');
   let n = 0;
   c = c.replace(/PLACEHOLDER_([^)\s]+\.md)/g, (m, fname) => {
@@ -26,7 +30,7 @@ files.forEach(f => {
     unmapped.add(fname);
     return m;
   });
-  if (n > 0) { fs.writeFileSync(fp, c); totalReplaced += n; perFile.push(`${f}: ${n}개 치환`); }
+  if (n > 0) { fs.writeFileSync(fp, c); totalReplaced += n; perFile.push(`${path.relative(dir, fp)}: ${n}개 치환`); }
 });
 
 console.log('\n=== link-replace 결과 ===\n');

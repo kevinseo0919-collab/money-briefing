@@ -42,9 +42,9 @@ ${bar}
 ${section(body, '해시태그').replace(/\r?\n/g, ' ').trim()}
 ${bar}
 [참고용]
-이미지 프롬프트: ${section(body, '이미지 프롬프트').replace(/```/g, '').trim()}
 썸네일 후킹 멘트: ${section(body, '썸네일 후킹 멘트')}
 `;
+// 발행용 .txt 에는 이미지 프롬프트를 넣지 않는다 (이미지 생성용 프롬프트는 feed-pool 원본 .md 에만 보관).
 
 const outDir = path.join('output', 'publish');
 fs.mkdirSync(outDir, { recursive: true });
