@@ -59,7 +59,7 @@ function analyze(path) {
   // 별표 볼드 금지(복붙 규칙)
   const noStarBold = !/\*\*/.test(body);
   // 광고 과다 톤(리드젠 페널티 회피)
-  const adHeavy = /최저가|무료상담|지금 신청하세요|클릭|문의 주세요|제휴|광고료/.test(body);
+  const adHeavy = /최저가|무료상담|지금 신청하세요|클릭하세요|여기를? 클릭|지금 클릭|문의 주세요|상담 신청|제휴|광고료/.test(body);
 
   // 제목 신호
   const titleHasNum = /\d/.test(title);
