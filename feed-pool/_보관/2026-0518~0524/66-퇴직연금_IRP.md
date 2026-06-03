@@ -150,14 +150,6 @@ Q6. IRP 계좌는 어디서 개설하나요?
 #연말정산절세 #연금저축IRP #2026퇴직연금 #노후준비
 #머니브리핑 #돈일기
 
-## 이미지 프롬프트
-
-```
-a piggy bank and a retirement savings jar on a wooden desk with coins and a small calendar,
-flat illustration style, soft pastel colors, no text, no people,
-calm and warm financial planning mood, clean minimal composition, 4:3 aspect ratio
-```
-
 ## 썸네일 후킹 멘트
 
 IRP 안 열면 세금 더 냈어요

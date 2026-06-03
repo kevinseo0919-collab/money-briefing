@@ -181,14 +181,6 @@ Q6. 월급 통장을 CMA로 바꿔도 되나요?
 #파킹통장비교 #여유자금관리 #재테크초보 #머니브리핑 #돈일기 #2026재테크
 
 
-## 이미지 프롬프트
-
-```
-a smartphone showing a financial dashboard with coin stacks and upward bar charts,
-flat illustration style, soft pastel colors, no text, no people,
-clean minimal composition, warm mint and yellow tones, 4:3 aspect ratio
-```
-
 ## 썸네일 후킹 멘트
 
 은행통장 이자 0.1% 방치중

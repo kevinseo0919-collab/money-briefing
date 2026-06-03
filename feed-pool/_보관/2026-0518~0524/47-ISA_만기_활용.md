@@ -185,12 +185,6 @@ ISA 만기 후 60일 안에 연금계좌 이전 여부를 결정하고,
 #머니브리핑 #돈일기
 
 
-## 이미지 프롬프트
-
-```
-a golden calendar page with a circular clock and a simple piggy bank beside a coin stack, flat illustration style, soft pastel colors, no text, no people, calm and organized financial planning mood, 4:3 aspect ratio
-```
-
 ## 썸네일 후킹 멘트
 
 ISA 만기 후 60일 놓치면

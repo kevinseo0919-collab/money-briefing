@@ -186,12 +186,6 @@ Q6. ISA 만기 후 연금저축으로 전환하면 얼마나 유리한가요?
 #ISA중개형 #중개형ISA계좌 #ISA절세 #ETF절세계좌
 #ISA서민형전환 #재테크통장 #절세투자 #2026ISA #머니브리핑 #돈일기
 
-## 이미지 프롬프트
-
-```
-a clean desk with a smartphone showing a stock chart app, surrounded by small coin stacks and a simple growth graph on paper, flat illustration style, soft pastel colors, no text, no people, minimal composition, light blue and mint tones, 4:3 aspect ratio
-```
-
 ## 썸네일 후킹 멘트
 
 일반계좌 ETF 세금 내고 있어요
