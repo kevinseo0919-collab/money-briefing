@@ -1,7 +1,53 @@
 // 무료 키워드 도구: DataLab + 자동완성 + Google Trends
+// CPC는 모두 추정·비공식 수치임. 실제 값은 ±50% 변동 가능.
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
+const yaml = require('yaml');
 const axios = require('axios');
 const googleTrends = require('google-trends-api');
+
+// ── CPC 추정 (high-cpc.yml 기반) ────────────────────────────────
+// 1) high-cpc.yml 에 키워드가 있으면 그 cpc_est 사용
+// 2) 없으면 키워드 패턴(대출/청약·부동산/세금/보험·연금)으로 해당 카테고리 평균값 추정
+// 3) 둘 다 아니면 기본값 1000
+let _cpcCache = null;
+function loadCpc() {
+  if (_cpcCache) return _cpcCache;
+  const exact = new Map();        // keyword → cpc_est
+  const catAvg = {};              // category → 평균 cpc_est
+  try {
+    const file = path.join(__dirname, '..', 'keyword-bank', 'high-cpc.yml');
+    const doc = yaml.parse(fs.readFileSync(file, 'utf8')) || {};
+    for (const [cat, arr] of Object.entries(doc)) {
+      if (!Array.isArray(arr)) continue;
+      let sum = 0, n = 0;
+      for (const o of arr) {
+        if (o && o.keyword && o.cpc_est) { exact.set(o.keyword, o.cpc_est); sum += o.cpc_est; n++; }
+      }
+      if (n) catAvg[cat] = Math.round(sum / n);
+    }
+  } catch { /* 파일 없으면 패턴/기본값만 사용 */ }
+  _cpcCache = { exact, catAvg };
+  return _cpcCache;
+}
+
+// 키워드 패턴 → high-cpc.yml 카테고리 매핑 (위에서부터 먼저 매칭)
+const CPC_PATTERNS = [
+  ['loan',              /대출|전세자금|디딤돌|보금자리|햇살론|사잇돌|버팀목|주택연금|보증보험|반환보증/],
+  ['realestate',        /청약|분양|종부세|종합부동산|부동산세|양도세|취득세|재산세|재건축|재개발|오피스텔|공시지가|전월세|특별공급|매입임대|비과세/],
+  ['tax',               /소득세|부가세|연말정산|상속세|증여세|원천징수|법인세|절세|세액공제/],
+  ['insurance_pension', /보험|연금|IRP|ISA|건강보험|고용보험|산재|실업급여|퇴직/]
+];
+
+function estimateCpc(keyword) {
+  const { exact, catAvg } = loadCpc();
+  if (exact.has(keyword)) return exact.get(keyword);          // 1) 정확 매칭
+  for (const [cat, re] of CPC_PATTERNS) {                     // 2) 패턴 → 카테고리 평균
+    if (re.test(keyword) && catAvg[cat]) return catAvg[cat];
+  }
+  return 1000;                                                // 3) 기본값
+}
 
 async function getNaverAutocomplete(keyword) {
   const url = `https://ac.search.naver.com/nx/ac?q=${encodeURIComponent(keyword)}&con=1&frm=nv&ans=2&r_format=json&r_enc=UTF-8&r_unicode=0&t_koreng=1&run=2&rev=4&q_enc=UTF-8&st=100`;
@@ -79,6 +125,7 @@ async function analyzeKeyword(keyword) {
     trend_google: gtrend,                       // DataLab 대체용 수요 신호 (0~100, 없으면 null)
     competition,
     total_posts: comp,
+    cpc_est: estimateCpc(keyword),              // 추정·비공식 CPC (high-cpc.yml 또는 패턴/기본값)
     related_keywords: related.slice(0, 10)
   };
 }
@@ -89,4 +136,4 @@ if (require.main === module) {
   analyzeKeyword(kw).then(r => console.log(JSON.stringify(r, null, 2)));
 }
 
-module.exports = { analyzeKeyword, getNaverAutocomplete, getDataLabTrend, getGoogleTrend, getCompetition };
+module.exports = { analyzeKeyword, getNaverAutocomplete, getDataLabTrend, getGoogleTrend, getCompetition, estimateCpc };

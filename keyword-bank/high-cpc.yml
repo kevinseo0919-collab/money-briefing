@@ -1,0 +1,72 @@
+# high-cpc.yml — 고단가 "제도설명형" 키워드 풀 (PR3 추가)
+# ─────────────────────────────────────────────────────────────
+# ⚠️ cpc_est 는 모두 추정·비공식 수치입니다. 실제 광고단가는 시기·경쟁·매체에 따라
+#    ±50% 이상 변동할 수 있으며, 어떤 공식 출처로도 보증되지 않습니다.
+# 정체성: 머니브리핑의 "정책·세금·복지" 정보형 톤을 유지한다.
+#         순수 상품비교/추천(신용카드 TOP10 등)은 배제하고, "제도설명형"으로만 구성.
+# intent: info(정보) / apply(신청) / compare(비교)
+# 파서(keyword-free.js·daily-run.js)는 각 항목의 keyword 를 풀에 넣고 cpc_est 로 가중.
+# 이미 feed-pool 에 쓴 키워드는 daily-run 이 자동 제외함.
+
+loan: # 대출 (CPC 추정 3000~5000원)
+  - { keyword: "디딤돌대출 한도 2026", cpc_est: 4000, intent: info }
+  - { keyword: "보금자리론 자격 조건", cpc_est: 4000, intent: info }
+  - { keyword: "청년전세대출 신청 방법", cpc_est: 3500, intent: apply }
+  - { keyword: "신혼부부 전세대출 한도", cpc_est: 3500, intent: info }
+  - { keyword: "햇살론 대상자 조건", cpc_est: 3000, intent: info }
+  - { keyword: "사잇돌2 자격 요건", cpc_est: 3000, intent: info }
+  - { keyword: "버팀목 전세자금대출", cpc_est: 3500, intent: apply }
+  - { keyword: "주택연금 신청 절차", cpc_est: 3000, intent: info }
+  - { keyword: "임대차보증금 대출 조건", cpc_est: 3000, intent: info }
+  - { keyword: "신용대출 한도 늘리는 법", cpc_est: 3500, intent: info }
+  - { keyword: "주택담보대출 금리 비교 방법", cpc_est: 3500, intent: compare }
+  - { keyword: "전세사기 방지 보증보험", cpc_est: 2500, intent: info }
+  - { keyword: "청년주택드림 대출 자격", cpc_est: 3000, intent: info }
+  - { keyword: "신혼희망타운 대출 조건", cpc_est: 3000, intent: info }
+  - { keyword: "전세보증금 반환보증 가입", cpc_est: 2500, intent: apply }
+
+realestate: # 청약·부동산 세금 (CPC 추정 2000~3000원)
+  - { keyword: "청약 가점 계산법 2026", cpc_est: 2500, intent: info }
+  - { keyword: "신혼부부 특별공급 조건", cpc_est: 2500, intent: info }
+  - { keyword: "1가구1주택 비과세 요건", cpc_est: 2500, intent: info }
+  - { keyword: "양도세 절세 방법", cpc_est: 2800, intent: info }
+  - { keyword: "재건축 재개발 차이", cpc_est: 2000, intent: info }
+  - { keyword: "분양권 전매제한 기간", cpc_est: 2000, intent: info }
+  - { keyword: "오피스텔 vs 아파트 세금", cpc_est: 2200, intent: compare }
+  - { keyword: "다주택자 종부세 계산", cpc_est: 2800, intent: info }
+  - { keyword: "주택 취득세 감면 조건", cpc_est: 2500, intent: info }
+  - { keyword: "역세권 청년주택 신청", cpc_est: 2000, intent: apply }
+  - { keyword: "LH 청년 매입임대 조건", cpc_est: 2000, intent: info }
+  - { keyword: "재산세 분납 신청 방법", cpc_est: 2000, intent: apply }
+  - { keyword: "주택 상속세 절세", cpc_est: 2800, intent: info }
+  - { keyword: "전월세 전환율 계산", cpc_est: 1800, intent: info }
+  - { keyword: "공시지가 이의신청 방법", cpc_est: 1800, intent: apply }
+
+tax: # 세금 (CPC 추정 1500~2500원)
+  - { keyword: "종합소득세 환급 받는 법", cpc_est: 2200, intent: info }
+  - { keyword: "부가세 절세 전략", cpc_est: 2000, intent: info }
+  - { keyword: "연말정산 카드공제 한도", cpc_est: 2000, intent: info }
+  - { keyword: "상속세 신고 기한", cpc_est: 2500, intent: info }
+  - { keyword: "증여세 면제한도 2026", cpc_est: 2500, intent: info }
+  - { keyword: "근로소득세 계산기", cpc_est: 1500, intent: info }
+  - { keyword: "프리랜서 종합소득세 신고", cpc_est: 2000, intent: apply }
+  - { keyword: "사업자 부가세 신고 방법", cpc_est: 2000, intent: apply }
+  - { keyword: "원천징수 환급 조회", cpc_est: 1800, intent: info }
+  - { keyword: "법인세 절세 방법", cpc_est: 2500, intent: info }
+  - { keyword: "취득세 감면 대상", cpc_est: 2200, intent: info }
+  - { keyword: "재산세 납부일 조회", cpc_est: 1500, intent: info }
+  - { keyword: "종부세 합산배제 신청", cpc_est: 2500, intent: apply }
+  - { keyword: "양도세 1세대1주택 비과세", cpc_est: 2800, intent: info }
+  - { keyword: "ISA 절세 효과 비교", cpc_est: 1800, intent: compare }
+
+insurance_pension: # 보험·연금 (CPC 추정 1500~2500원)
+  - { keyword: "실손보험 4세대 전환", cpc_est: 2000, intent: info }
+  - { keyword: "국민연금 임의가입 조건", cpc_est: 1800, intent: info }
+  - { keyword: "연금저축 세액공제 한도", cpc_est: 2200, intent: info }
+  - { keyword: "IRP 계좌 세제혜택", cpc_est: 2000, intent: info }
+  - { keyword: "국민연금 수령액 조회", cpc_est: 1500, intent: info }
+  - { keyword: "기초연금 수급자격 2026", cpc_est: 1800, intent: info }
+  - { keyword: "퇴직연금 DB DC 차이", cpc_est: 2000, intent: compare }
+  - { keyword: "건강보험 피부양자 자격", cpc_est: 1500, intent: info }
+  - { keyword: "고용보험 실업급여 조건", cpc_est: 1800, intent: info }
+  - { keyword: "산재보험 보상 절차", cpc_est: 1500, intent: info }
