@@ -28,6 +28,11 @@ if (!input) { console.error('사용법: node scripts/export-publish.js <md파일
 const { data, body } = parseFrontmatter(fs.readFileSync(input, 'utf8'));
 const tags = Array.isArray(data.tags) ? data.tags.map(t => '#' + t).join(' ') : '(frontmatter 태그 없음 — 아래 해시태그 참조)';
 const bar = '═'.repeat(43);
+// 이미지 자리 마커는 발행 출력에 노출하지 않는다 (게이트용으로 feed-pool 원본 .md 에만 남김).
+const bodyText = body.split(/^## 해시태그/m)[0]
+  .replace(/^\[이미지 자리[^\n]*\r?\n?/gm, '')
+  .replace(/\n{3,}/g, '\n\n')
+  .trim();
 const out = `[블로그 발행용]
 제목: ${data.title || path.basename(input, '.md')}
 카테고리: ${data.category || '(없음)'}
@@ -35,7 +40,7 @@ const out = `[블로그 발행용]
 ${bar}
 [본문]
 
-${body.split(/^## 해시태그/m)[0].trim()}
+${bodyText}
 
 ${bar}
 [해시태그]

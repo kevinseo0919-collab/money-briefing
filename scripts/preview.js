@@ -30,9 +30,9 @@ function buildHtml(md) {
   flush();
 
   const htmlLines = lines.map((line, i) => {
-    // 이미지 자리 마커
+    // 이미지 자리 마커 — 긴 안내문 대신 깔끔한 자리 박스로만 표시
     if (/^\s*\[이미지 자리/.test(line)) {
-      return `<div class="imgph">🖼 ${esc(line.trim())}</div>`;
+      return `<div class="imgph">🖼 이미지 자리</div>`;
     }
     if (line.trim() === '') return '';
 
@@ -79,7 +79,7 @@ function preview(input) {
   body { margin:0; background:#e9ecef; font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif; }
   .phone {
     max-width:375px; margin:24px auto; background:#fff; min-height:90vh;
-    padding:18px 16px; line-height:1.85; font-size:16px; color:#222;
+    padding:18px 16px; line-height:1.8; font-size:15px; color:#222;
     box-shadow:0 4px 24px rgba(0,0,0,.15); border-radius:12px;
   }
   .ln { white-space:pre-wrap; word-break:break-all; position:relative; padding:1px 0; }
