@@ -30,9 +30,9 @@ function buildHtml(md) {
   flush();
 
   const htmlLines = lines.map((line, i) => {
-    // 이미지 자리 마커 — 긴 안내문 대신 깔끔한 자리 박스로만 표시
+    // 이미지 자리 마커는 표시하지 않는다 (사진은 발행 시 직접 삽입)
     if (/^\s*\[이미지 자리/.test(line)) {
-      return `<div class="imgph">🖼 이미지 자리</div>`;
+      return '';
     }
     if (line.trim() === '') return '';
 
@@ -105,13 +105,12 @@ function preview(input) {
   📊 검증 카운터<br>
   글자수 <b>${c.chars}</b> / 1800~2200<br>
   「」강조 <b>${c.emph}</b> / 6+<br>
-  이미지자리 <b>${c.imgs}</b> / 4+<br>
   단락수 <b>${c.paras}</b>
 </div>
 <div class="phone">
 ${body}
 </div>
-<div class="legend">🔴 60자 초과 · 🟡 4줄+ 연속단락 · ⬜ 이미지 자리 · 🟨 「」강조</div>
+<div class="legend">🔴 60자 초과 · 🟡 4줄+ 연속단락 · 🟨 「」강조</div>
 </body></html>`;
 
   const outPath = path.join(outDir, 'post.html');

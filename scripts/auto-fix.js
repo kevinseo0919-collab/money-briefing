@@ -1,8 +1,6 @@
 const fs = require('fs');
 const { check, stripFrontmatter, isStructural } = require('./quality-check');
 
-const IMG_MARKER = '[이미지 자리 — 본문 흐름상 필요 시 직접 촬영/공공누리/정부 보도자료 이미지로 교체]';
-
 // 원문을 head(프론트매터) / body(본문) / tail(꼬리 섹션) 로 분해
 function splitParts(text) {
   const fmMatch = text.match(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/);
@@ -38,30 +36,6 @@ function fixEmphasis(body, currentCount) {
     }
   }
   return { body: lines.join('\n'), added };
-}
-
-// ── 2) image_placeholder: 본문 단락 경계에 마커 자동 삽입 (4개까지) ──
-function fixImagePlaceholder(body, currentCount) {
-  let need = 4 - currentCount;
-  if (need <= 0) return { body, added: 0 };
-  // 빈 줄로 단락 분리 → 경계 인덱스 수집
-  const paras = body.split(/\n\s*\n/);
-  if (paras.length < 2) return { body, added: 0 };
-  // 단락 사이 경계 위치(1..paras.length-1)에서 균등 분포로 need개 선택 (1/3, 2/3 포함)
-  const boundaries = paras.length - 1;
-  const picks = [];
-  for (let k = 1; k <= need; k++) {
-    const pos = Math.max(1, Math.round((boundaries * k) / (need + 1)));
-    if (!picks.includes(pos)) picks.push(pos);
-  }
-  // 뒤에서부터 삽입(인덱스 밀림 방지)
-  let added = 0;
-  const out = [...paras];
-  picks.sort((a, b) => b - a).forEach(pos => {
-    out.splice(pos, 0, IMG_MARKER);
-    added++;
-  });
-  return { body: out.join('\n\n'), added };
 }
 
 // ── 3) line_length: 60자 초과 prose 라인을 어절 단위로 줄바꿈 ──
@@ -133,12 +107,6 @@ function autoFix(file) {
     const r = fixEmphasis(body, cur); body = r.body;
     report.applied.push(`emphasis_count: 「」 ${r.added}개 추가`);
     if (cur + r.added < 6) report.manual.push('emphasis_count: 자동 탐지 토큰 부족 — 수동 강조 필요');
-  }
-  // 2) image_placeholder
-  if (before.image_placeholder && !before.image_placeholder.passed) {
-    const cur = (body.match(/\[이미지 자리/g) || []).length;
-    const r = fixImagePlaceholder(body, cur); body = r.body;
-    report.applied.push(`image_placeholder: 마커 ${r.added}개 삽입`);
   }
   // 5) length 부족 → 신호만
   if (before.length && !before.length.passed && before.length.value < 1800) {

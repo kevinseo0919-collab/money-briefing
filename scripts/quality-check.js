@@ -98,12 +98,6 @@ function checkEmphasis(body) {
   return { passed: count >= 6, detail: `「」 강조 ${count}회` };
 }
 
-// 4) image_placeholder: "[이미지 자리" 마커 4개 이상
-function checkImagePlaceholder(body) {
-  const count = (body.match(/\[이미지 자리/g) || []).length;
-  return { passed: count >= 4, detail: `이미지 자리 마커 ${count}개` };
-}
-
 // 5) table_or_checklist: "| ---" 또는 "> 📋" 또는 "> 📊" 1개 이상
 function checkTableOrChecklist(body) {
   const found = /\|\s*---/.test(body) || body.includes('> 📋') || body.includes('> 📊');
@@ -177,7 +171,6 @@ function check(file) {
     line_length: checkLineLength(body),
     paragraph_density: checkParagraphDensity(body),
     emphasis_count: checkEmphasis(body),
-    image_placeholder: checkImagePlaceholder(body),
     table_or_checklist: checkTableOrChecklist(body),
     intro_pattern: checkIntroPattern(file, body, 'feed-pool'),
     cta_variety: checkCtaVariety(body)
